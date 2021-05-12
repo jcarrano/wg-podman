@@ -1,0 +1,21 @@
+# Required vars
+
+# Pod name (the pod should exist in the user's profile).
+# Also used for the netns name.
+# NOTE: you must tell podman to create a pidfile at /home/$podusr/$podname.pid !!
+podname=servicepod
+
+# Run podman as this user.
+podusr=serviceuser
+# Address of wireguard interface (if you use wg-quick this goes
+# in the wg config file.
+podwgaddr=10.0.0.1/24
+
+# Optional vars
+
+# Name of wg interface (it will exist inside the container's net namespace)
+#podwgname = wg123
+
+# WG config file (should exist on the host machine!)
+# Defaults to /etc/wireguard/$podwgname.conf
+#podwgconfig = /etc/wireguard/wg123.conf

@@ -1,0 +1,38 @@
+#!/sbin/openrc-run
+
+# Start a rootless podman pod under some user and attach the network
+# namespace. The user must have created the pod with the correct pid
+# args, --network=none and attached a container.
+#
+# We use a pod so that the infra can keep the network namespace  in 
+# case we need to restart the container.
+#
+# Required variables:
+# podusr, podname
+#
+# Default pid is /home/$podusr/$podname.pid or $podpid
+
+command=/usr/bin/podman
+command_args="pod start ${podname}"
+pidfile="${podpid:-/home/$podusr/$podname.pid}"
+podbase="${RC_SVCNAME#*.}"
+name="User Pod $podbase"
+command_user=$podusr
+
+start_pre() {
+	modprobe fuse
+}
+
+start_post() {
+	local infra_id="$(su $podusr -c "$command pod ps --format json --filter name=$podname" | jq -r  ".[0].InfraId")"
+	local infra_pid="$(su $podusr -c "$command ps --format json --filter id=$infra_id" | jq -r ".[0].Pid")"
+	ip netns attach "$podname" "$infra_pid"
+}
+
+stop_pre() {
+	su $podusr -c "$command pod stop $podname"
+}
+
+stop_post() {
+	ip netns delete "$podname"
+}

@@ -1,0 +1,44 @@
+#!/sbin/openrc-run
+
+# Create a wireguard interface and move it to a user pod.
+# This requires the pod to be created and the netns to be attached
+#
+# Use the same config file that userpod.* (e.g. symlink it in
+# /etc/init.d)
+#
+# Required variables:
+# podname (actually the ns name, but it is the same)
+# podwgaddr (ip address/prefix)
+#
+# Default if name is wg-$podname or $podwgname
+# Default config is /etc/wireguard/$wgname.conf or
+# podwgconfig
+#
+# FIRST create, THEN move, LAST configure!
+
+podbase="${RC_SVCNAME#*.}"
+wg_ifname="${podwgname:-wg-$podbase}"
+wg_config="${podwgconfig:-/etc/wireguard/$wg_ifname.conf}"
+name="Wireguard for $podbase"
+
+depend() {
+	if [ "$podbase" != "$RC_SVCNAME"  ] ; then
+		need userpodman.$podbase
+	fi
+}
+
+start() {
+	ip link add $wg_ifname type wireguard
+	ip link set $wg_ifname netns $podname
+	ip netns exec $podname wg setconf $wg_ifname $wg_config
+	ip netns exec $podname ip address add $podwgaddr dev $wg_ifname
+	ip netns exec $podname ip link set $wg_ifname up
+}
+
+stop() {
+	ip netns exec $podname ip link set $wg_ifname down \
+          || ewarn "Could not set link down"
+	ip netns exec $podname ip link delete dev $wg_ifname \
+          || ewarn "Could not delete dev"
+}
+
