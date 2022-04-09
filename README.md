@@ -69,6 +69,16 @@ ln -s userpodman.myservice podwg.myservice
 
 Also included is a couple of scripts to automate creating WG configs and new users/peers.
 
+### Important note regarding security when using the scripts
+
+The user-add script will create a public/private key pair. The private key is bundled with the server's
+public key in a wireguard config file which you are supposed to send to the user. This is sub-optimal from
+a security point of view and the best thing would be if the user's private key never leaves their computer.
+
+In an ideal world, the user would send the public key to the server admin over an authenticated (not
+necessarily private) channel. Unfortunately, this is not easy to do for non tech-savy users. Consider
+your tradeoffs.
+
 ## To do
 
 The WG config-creation scripts leave much to be desired.
