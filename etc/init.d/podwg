@@ -20,6 +20,7 @@ podbase="${RC_SVCNAME#*.}"
 wg_ifname="${podwgname:-wg-$podbase}"
 wg_config="${podwgconfig:-/etc/wireguard/$wg_ifname.conf}"
 name="Wireguard for $podbase"
+extra_started_commands="reload"
 
 depend() {
 	if [ "$podbase" != "$RC_SVCNAME"  ] ; then
@@ -42,3 +43,8 @@ stop() {
           || ewarn "Could not delete dev"
 }
 
+reload() {
+	ebegin "Reloading Wireguard config for ${RC_SVCNAME}"
+	ip netns exec $podname wg syncconf $wg_ifname $wg_config
+	eend $?
+}
