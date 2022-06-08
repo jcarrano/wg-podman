@@ -76,8 +76,8 @@ public key in a wireguard config file which you are supposed to send to the user
 a security point of view and the best thing would be if the user's private key never leaves their computer.
 
 In an ideal world, the user would send the public key to the server admin over an authenticated (not
-necessarily private) channel. Unfortunately, this is not easy to do for non tech-savy users. Consider
-your tradeoffs.
+necessarily private) channel. Unfortunately, this is not easy to do for non tech-savy users with the command
+line tools. I have made a tool for users to create their own key pairs: https://github.com/jcarrano/wg-keygen-notrust
 
 ## To do
 
