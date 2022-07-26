@@ -71,7 +71,7 @@ Address = $CLIENTADDR/32
 Endpoint = $SERVERFQDN:$SERVERPORT
 PublicKey = $SERVERPUB
 PresharedKey = $PSKEY
-AllowedIPs = 10.0.12.0/24
+AllowedIPs = $ADDRPREFIX.0/24
 
 # Send periodic keepalives to ensure connection stays up behind NAT.
 PersistentKeepalive = 25
