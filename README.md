@@ -79,20 +79,58 @@ ln -s userpodman.myservice podwg.myservice
 
 ## Other
 
-Also included is a couple of scripts to automate creating WG configs and new users/peers.
+Also included is a couple of scripts to automate creating WG configs and new users/peers. Modify
+the scripts as you see fit.
 
-### Important note regarding security when using the scripts
+### wg_server_init
+
+```
+wg_server_init <wgconf> <server_ip> <server_fqdn>
+```
+
+Create a new server configuration file. The IP refers to the IP on the VPN. The FQDN and IP are not
+used by wireguard itself but are needed for the other scripts.
+
+### wg_newuser
+
+```
+wg_newuser <wgconf> <client_conf>
+```
+
+Creates a new user, Adds the user to the server config file and creates a client configuration with
+a PRIVATE key that must be PRIVATELY sent to the user. See the "note regarding security" below.
+
+### wg_importuser
+
+```
+wg_importuser <wgconf> <client_frag> [<client_name>]
+```
+
+Import a client fragment created with the [Wireguard Key Generator](https://github.com/jcarrano/wg-keygen-notrust)
+tool. This is a safer alternative to wg_newuser, since only the PUBLIC key needs to be transmitted.
+
+### wg_getlink
+
+```
+wg_getlink <wgconf> [<client_name>]
+```
+
+Generate a hyperlink for use with the [Wireguard Key Generator](https://github.com/jcarrano/wg-keygen-notrust). Upon
+opening the link, the fields will be populated with the right parameters.
+
+### Important note regarding security
 
 The user-add script will create a public/private key pair. The private key is bundled with the server's
 public key in a wireguard config file which you are supposed to send to the user. This is sub-optimal from
 a security point of view and the best thing would be if the user's private key never leaves their computer.
 
-In an ideal world, the user would send the public key to the server admin over an authenticated (not
-necessarily private) channel. Unfortunately, this is not easy to do for non tech-savy users with the command
-line tools. I have made a tool for users to create their own key pairs: https://github.com/jcarrano/wg-keygen-notrust
+If the user generates their own key pair they only send the public key to the server admin over an
+authenticated (not necessarily private) channel. This is not easy to do for non tech-savy users using the
+command line but the [Wireguard Key Generator](https://github.com/jcarrano/wg-keygen-notrust) was created to
+solve that issue.
 
 ## To do
 
-The WG config-creation scripts leave much to be desired.
-
-The init script should probably use `su-exec` instead of `su`.
+- The WG config-creation scripts leave much to be desired.
+- The init script should probably use `su-exec` instead of `su`.
+- Add administrator email field so that wg_getlink can populate that field.
