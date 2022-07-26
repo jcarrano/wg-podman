@@ -16,6 +16,43 @@ It is written as a couple of OpenRC init scripts.
 
 Optionally, `su-exec` can replace su.
 
+## Quickstart
+
+The scripts use OpenRC Multi-service functionality. Configuration is in /etc/config.d.
+
+First you should create a podman pod as a normal user. The pod networking must be
+set to `none`. You must tell podman to create a pidfile at
+`/home/<podusr>/<podname>.pid`. Example:
+
+```sh
+podman pod create --network=none --infra-conmon-pidfile=/home/<podusr>/<podname>.pid --name <podname>
+```
+
+Replace `<podusr>` and `<podname>` with the real user and pod names. Populate
+the pod with containers (this can be done at any time).
+
+Then create two services by symlinking to the base init scripts:
+
+```sh
+cd /etc/init.d
+ln -s userpodman userpodman.myservice
+ln -s podwg podwg.myservice
+```
+
+The service name `<myservice>` is arbitrary but must match for both services.
+
+Those scripts will take the configuration variables from `/etc/conf.d/{userpodman.myservice, podwg.myservice}`
+respectively but since those have some variables in common, it is better to have only one
+actual file and symlink the other:
+
+```sh
+cd /etc/conf.d
+nano userpodman.myservice # fill in the variables, see example
+ln -s userpodman.myservice podwg.myservice
+```
+
+Finally, add `podwg.myservice` to the default runlevel.
+
 ## How it works
 
 ### 1 Create pod
@@ -24,8 +61,9 @@ Unfortunately, the choices of networking setups when creating a rootless contain
 are limited. We can work around it by creating the a pod first and then
 setting up the networking as root.
 
-The first init script (`userpodman`) starts a pod as a user with `--network=none`.
-Podman will create an empty network namespace (with only a loopback interface).
+The first init script (`userpodman`) starts a pod (as a regular user) which has
+`--network=none`. Podman will create an empty network namespace (with only a
+loopback interface).
 
 ### 2 Attach namespace
 
@@ -54,28 +92,6 @@ podman instance. See the following issues:
 
 The workaround provided here is an additional init script `mount-rshared` which shares
 the mount and is depended on by the userpodman script.
-
-## Configuration
-
-The scripts use OpenRC Multi-service functionality. Configuration is in /etc/config.d.
-
-You should create two services by symlinking to the base init scripts:
-
-```sh
-cd /etc/init.d
-ln -s userpodman userpodman.myservice
-ln -s podwg podwg.myservice
-```
-
-Those scripts will take the configuration variables from `userpodman.myservice` and `podwg.myservice`,
-in the /etc/conf.d but since those have some variables in common, it is better to have only one
-actual file and one symlink.
-
-```sh
-cd /etc/conf.d
-nano userpodman.myservice
-ln -s userpodman.myservice podwg.myservice
-```
 
 ## Other
 
