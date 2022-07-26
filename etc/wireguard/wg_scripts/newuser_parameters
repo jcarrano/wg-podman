@@ -1,0 +1,30 @@
+SERVERFQDN="$(sed -nE 's|^#?fqdn[[:space:]]*=[[:space:]]*(.+)[[:space:]]*$|\1|p' "$wgconf" | head -n 1)"
+
+if [ -z "$SERVERFQDN" ] ; then
+	echo "Cannot parse server's FQDN base from config file"
+	exit 2
+fi
+
+ADDRPREFIX="$(sed -nE 's|^#?Address[[:space:]]*=[[:space:]]*([0-9.]+).[0-9]+/[0-9]+$|\1|p' "$wgconf" | head -n 1)"
+
+if [ -z "$ADDRPREFIX" ] ; then
+	echo "Cannot parse address base from config file"
+	exit 2
+fi
+
+EXISTING_PEERS=$(grep -F '[Peer]' $wgconf | wc -l)
+PEERBASE=10
+PEERN=$(($EXISTING_PEERS + $PEERBASE))
+
+SERVERPRIV="$(sed -n 's/[[:space:]]*PrivateKey[[:space:]]*=[[:space:]]*\(.\+\)/\1/p' "$wgconf")"
+SERVERPUB=$(wg pubkey <<PK
+$SERVERPRIV
+PK
+)
+
+SERVERPORT="$(sed -n 's/[[:space:]]*ListenPort[[:space:]]*=[[:space:]]*\(.\+\)/\1/p' "$wgconf")"
+
+CLIENTADDR=$ADDRPREFIX.$PEERN
+
+ALLOWEDSUBNET=$ADDRPREFIX.0
+ALLOWEDPREFIX=24

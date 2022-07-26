@@ -15,23 +15,7 @@ fi
 
 set -e
 
-SERVERFQDN="$(sed -nE 's|^#?fqdn[[:space:]]*=[[:space:]]*(.+)[[:space:]]*$|\1|p' "$wgconf" | head -n 1)"
-
-if [ -z "$SERVERFQDN" ] ; then
-	echo "Cannot parse server's FQDN base from config file"
-	exit 2
-fi
-
-ADDRPREFIX="$(sed -nE 's|^#?Address[[:space:]]*=[[:space:]]*([0-9.]+).[0-9]+/[0-9]+$|\1|p' "$wgconf" | head -n 1)"
-
-if [ -z "$ADDRPREFIX" ] ; then
-	echo "Cannot parse address base from config file"
-	exit 2
-fi
-
-EXISTING_PEERS=$(grep -F '[Peer]' $wgconf | wc -l)
-PEERBASE=10
-PEERN=$(($EXISTING_PEERS + $PEERBASE))
+. $(dirname $0)/newuser_parameters
 
 PRIVKEY=$(wg genkey)
 PUBKEY=$(wg pubkey <<PK
@@ -39,17 +23,7 @@ $PRIVKEY
 PK
 )
 
-SERVERPRIV="$(sed -n 's/[[:space:]]*PrivateKey[[:space:]]*=[[:space:]]*\(.\+\)/\1/p' "$wgconf")"
-SERVERPUB=$(wg pubkey <<PK
-$SERVERPRIV
-PK
-)
-
-SERVERPORT="$(sed -n 's/[[:space:]]*ListenPort[[:space:]]*=[[:space:]]*\(.\+\)/\1/p' "$wgconf")"
-
 PSKEY=$(wg genpsk)
-
-CLIENTADDR=$ADDRPREFIX.$PEERN
 
 umask 007
 
@@ -71,7 +45,7 @@ Address = $CLIENTADDR/32
 Endpoint = $SERVERFQDN:$SERVERPORT
 PublicKey = $SERVERPUB
 PresharedKey = $PSKEY
-AllowedIPs = $ADDRPREFIX.0/24
+AllowedIPs = $ALLOWEDSUBNET/$ALLOWEDPREFIX
 
 # Send periodic keepalives to ensure connection stays up behind NAT.
 PersistentKeepalive = 25
