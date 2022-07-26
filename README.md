@@ -43,6 +43,18 @@ and configures it.
 Now processes running in the Pod can only communicate through the Wireguard tunnel.
 They can also bind to privileged ports on this interface.
 
+## Shared mounts and rootless podman.
+
+If you are using Alpine Linux or any other distros that do not mount root as a
+shared mount by default, you will experience problems when trying to run a rootless
+podman instance. See the following issues:
+
+- https://gitlab.alpinelinux.org/alpine/tsc/-/issues/42
+- https://github.com/OpenRC/openrc/issues/525
+
+The workaround provided here is an additional init script `mount-rshared` which shares
+the mount and is depended on by the userpodman script.
+
 ## Configuration
 
 The scripts use OpenRC Multi-service functionality. Configuration is in /etc/config.d.

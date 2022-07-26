@@ -19,6 +19,10 @@ podbase="${RC_SVCNAME#*.}"
 name="User Pod $podbase"
 command_user=$podusr
 
+depend() {
+	need mount-rshared
+}
+
 start_pre() {
 	modprobe fuse
 }

@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+
+# Make the root mount propagation rshared so that rootless podman can work
+
+depend()
+{
+	need localmount
+}
+
+start()
+{
+	ebegin "Setting the root mount propagation to shared"
+	mount --make-rshared /
+	eend $?
+}
