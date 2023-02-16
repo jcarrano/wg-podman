@@ -23,18 +23,15 @@ SERVERPORT="$(sed -n 's/[[:space:]]*ListenPort[[:space:]]*=[[:space:]]*\(.\+\)/\
 u() {
   local string="${1}"
   local strlen=${#string}
-  local encoded=""
-  local pos c o
+  local pos
 
-  for (( pos=0 ; pos<strlen ; pos++ )); do
-     c=${string:$pos:1}
+  for pos in $(seq 0 $(($strlen-1))) ; do
+     local c=${string:$pos:1}
      case "$c" in
-        [-_.~a-zA-Z0-9] ) o="${c}" ;;
-        * )               printf -v o '%%%02x' "'$c"
+        [-_.~a-zA-Z0-9] ) printf '%c' "${c}" ;;
+        * )               printf '%%%02x' "'$c"
      esac
-     encoded+="${o}"
   done
-  echo "${encoded}"    # You can either set a return variable (FASTER)
 }
 
 if [ -n "$clientname" ] ; then
