@@ -1,13 +1,14 @@
 #!/bin/sh
 # Initial server config
 # Usage
-# wg_server_init <wgconf> <server_ip> <server_fqdn>
+# wg_server_init <wgconf> <server_ip> <server_fqdn> [<admin-email>]
 
 set -e
 
 wgconf="$1"
 server_ip="$2"
 server_fqdn="$3"
+admin_email="$4"
 
 note() {
 	echo "The 'Address' entry in the resulting file is commented out," >&2
@@ -15,7 +16,7 @@ note() {
 }
 
 if [ -z "$wgconf" -o -z "$server_ip" -o -z "$server_fqdn" ] ; then
-	echo "Usage wg_server_init <wgconf> <server_ip> <server_fqdn>"
+	echo "Usage wg_server_init <wgconf> <server_ip> <server_fqdn> [<admin-email>]"
 	note
 	exit 1
 fi
@@ -28,6 +29,7 @@ cat > $wgconf <<SERVERCF
 [Interface]
 #fqdn = $server_fqdn
 #Address = $server_ip/32
+#AdminEmail = $admin_email
 ListenPort = 51820
 PrivateKey = $PRIVKEY
 SERVERCF

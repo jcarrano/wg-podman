@@ -1,10 +1,10 @@
-# Example initscripts for Podman and Wireguard
+# Example init-scripts for Podman and Wireguard
 
-This is simple example of how to set up a rootless Podman container with
+This is a simple example of how to set up a rootless Podman container with
 Wireguard-only connectivity, without user-space networking (i.e. without
-slirp).
+`slirp`).
 
-It is written as a couple of OpenRC init scripts.
+It is implemented as a pair of OpenRC init scripts.
 
 ## Requirements
 

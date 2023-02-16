@@ -17,8 +17,6 @@ set -e
 
 . $(dirname $0)/newuser_parameters
 
-SERVERPORT="$(sed -n 's/[[:space:]]*ListenPort[[:space:]]*=[[:space:]]*\(.\+\)/\1/p' "$wgconf")"
-
 #from https://stackoverflow.com/a/10660730
 u() {
   local string="${1}"
@@ -40,7 +38,19 @@ else
     QUERY_CN=""
 fi
 
-QUERY="sa=$(u ${SERVERFQDN})&sp=${SERVERPORT}&sk=$(u ${SERVERPUB})&ca=${CLIENTADDR}&aa=${ALLOWEDSUBNET}&ap=${ALLOWEDPREFIX}${QUERY_CN}"
+if [ -n "$ADMIN_EMAIL" ] ; then
+    QUERY_AE="&ae=$(u ${ADMIN_EMAIL})"
+else
+    QUERY_AE=""
+fi
 
-echo -n https://gateway.pinata.cloud/ipfs/QmdU8zZ1HPrS7JZQ5AqCbGnCE2zLqtiGLpxPYL99XTipZk?
+QUERY="sa=$(u ${SERVERFQDN})&sp=${SERVERPORT}&sk=$(u ${SERVERPUB})&ca=${CLIENTADDR}&aa=${ALLOWEDSUBNET}&ap=${ALLOWEDPREFIX}${QUERY_CN}${QUERY_AE}"
+
+echo -n 'https://gateway.pinata.cloud/ipfs/QmdGs4rfkTS3D4614sjUysx9XxJkp57v5sm59w259eX7ov?'
+echo "$QUERY"
+
+echo -n 'https://ipfs.io/ipfs/QmdGs4rfkTS3D4614sjUysx9XxJkp57v5sm59w259eX7ov?'
+echo "$QUERY"
+
+echo -n 'https://jcarrano.github.io/wg-keygen-notrust/?'
 echo "$QUERY"

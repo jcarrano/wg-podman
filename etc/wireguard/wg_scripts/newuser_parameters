@@ -12,6 +12,8 @@ if [ -z "$ADDRPREFIX" ] ; then
 	exit 2
 fi
 
+ADMIN_EMAIL="$(sed -nE 's|^#?AdminEmail[[:space:]]*=[[:space:]]*(.+)[[:space:]]*$|\1|p' "$wgconf" | head -n 1)"
+
 EXISTING_PEERS=$(grep -F '[Peer]' $wgconf | wc -l)
 PEERBASE=10
 PEERN=$(($EXISTING_PEERS + $PEERBASE))
